@@ -1,0 +1,155 @@
+﻿<UserControl x:Class="ftp.FtpSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border BorderBrush="Black" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+
+            <TabControl>
+
+
+                <TabItem Header="General" Margin="-1,-1,-3,-1">
+                    <Border BorderBrush="Black" BorderThickness="1" Margin="5,5,5,5">
+
+                        <StackPanel Margin="10">
+
+                            <TextBlock Text="FTP Server Address" HorizontalAlignment="Left" VerticalAlignment="Center" Width="200"/>
+                            <Grid Margin="5">
+                                <TextBox Text="{Binding Settings.FtpServer, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+                            <TextBlock Text="FTP Port" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                            <Grid Margin="5">
+                                <TextBox Text="{Binding Settings.FtpPort, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+                            <!-- FTP Username -->
+                            <TextBlock Text="FTP Username:" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                            <Grid Margin="5">
+                                <TextBox Text="{Binding Settings.FtpUsername, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+
+                            <!-- FTP Password -->
+                            <TextBlock Text="FTP Password:" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <PasswordBox Grid.Column="0" x:Name="pass" Margin="5,0,0,0" />
+                                <TextBox x:Name="txtPassword" Grid.Column="0" Text="{Binding Settings.FtpPassword}" Margin="5,0,0,0" Visibility="Collapsed"/>
+                                <ToggleButton x:Name="toggleShow" Grid.Column="1" Content="Show" HorizontalAlignment="left" IsChecked="False" Click="show_Click" Margin="5,0,0,0">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="{x:Type ToggleButton}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                        <ControlTemplate.Resources>
+                                                            <Storyboard x:Key="ToggleAnimation">
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                             From="1" To=".5" Duration="0:0:.1"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                             From="1" To=".5" Duration="0:0:.1"/>
+                                                            </Storyboard>
+                                                        </ControlTemplate.Resources>
+                                                        <Border Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsChecked" Value="True">
+                                                                <Setter Property="Background" Value="Green"/>
+                                                                <Setter Property="Foreground" Value="Black"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="DarkGray"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                    <ToggleButton.RenderTransform>
+                                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                    </ToggleButton.RenderTransform>
+                                    <ToggleButton.RenderTransformOrigin>-1.933,0.436</ToggleButton.RenderTransformOrigin>
+                                </ToggleButton>
+                            </Grid>
+
+                            <!-- FTP Base Path -->
+                            <TextBlock Text="FTP Base Path:" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                            <Grid Margin="5">
+                                <TextBox Text="{Binding Settings.ServerBasepath, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+
+                            <!-- Temporary Path -->
+                            <TextBlock Text="Temporary Path:" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                            <Grid Margin="5">
+                                <TextBox Text="{Binding Settings.TempPath, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+
+                            <!-- Minimum File Size (MB) -->
+                            <TextBlock Text="Minimum File Size (MB)" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Grid Margin="5">
+                                <Slider Minimum="100" Maximum="10000" Value="{Binding Settings.Mingamesize, Mode=TwoWay}" Margin="5,0,0,0"/>
+                            </Grid>
+                            <TextBlock Text="{Binding Settings.Mingamesize, Mode=OneWay}" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+                <TabItem Header="Platform Support">
+                    <Border BorderBrush="Black" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <!-- Loop through each platform and create a checkbox -->
+                                <ItemsControl ItemsSource="{Binding Settings.CheckBoxes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding Key}" 
+                                     IsChecked="{Binding Value, Mode=OneWay}"         
+                                     Checked="CheckBox_Checked"
+                                     Unchecked="CheckBox_Unchecked"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Extension Support">
+                    <Border BorderBrush="Black" BorderThickness="1">
+                        <!-- Add your content here -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <!-- Loop through each platform and create a checkbox -->
+                                <ItemsControl ItemsSource="{Binding Settings.Extensions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding Key}" 
+                 IsChecked="{Binding Value, Mode=OneWay}"         
+                 Checked="EXT_Checked"
+                 Unchecked="EXT_Unchecked"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </TabItem>
+            </TabControl>
+            <Image  Grid.Row="1" Source="/ftp;component/icon.png" Width="64" Height="64" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+
+        </Grid>
+    </Border>
+</UserControl>
