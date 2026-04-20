@@ -3,7 +3,7 @@
 ***It Only keeps the currently downloaded rom file on disk, it removes previous cache*****
 ### Overview
 
-This is an extension for Playnite that allows users to Download Remote ROM files from an FTP server that is alo a SAMBA share server. Roms on the Samba share must be scanned into Playnite (ie: mapped network drive). The ServerBasePath should be the actual location of the files on the FTP server).
+This is an extension for Playnite that allows users to Download Remote ROM files from an FTP server that is also a SAMBA share server. Roms on the Samba share must be scanned into Playnite (ie: mapped network drive). The ServerBasePath should be the actual location of the files on the FTP server).
 (highly reccomend excluding files from checksum scan if on network)
 
 FTP path must be set correctly, the path to the roms folder on the FTP servers filesystem
@@ -31,7 +31,7 @@ as well as FTP user and password
 3. **Select Platforms**:
    - Check the boxes next to the platforms you want to support with this plugin.
 ### Usage
-Anything you launch is checked to see if it exists on a network drive -> then it is checked against platform ->then it is checked against filename extension. If these 3 conditions are set to true (ie: checked in the settings) then connect to ftp server and with the right settings and credentials, the folder will download and launch when the progressbar is completed. 
+Anything you launch is checked to see if it exists on a network drive -> then it is checked against platform ->then it is checked against filename extension. If these 3 conditions are set to true (ie: checked in the settings) then connect to ftp server and with the right settings and credentials, the folder will download and launch from the local version when the progressbar is completed. 
 
 
 ### Troubleshooting
