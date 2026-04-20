@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- ILRepack -->
+	<Target Name="ILRepacker" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+		<ItemGroup>
+			<InputAssemblies Include="$(OutputPath)\ftp.dll" />
+			<InputAssemblies Include="$(OutputPath)\fluentftp.dll" />
+		</ItemGroup>
+		<ItemGroup>
+			<_CopyItems Include="$(OutputPath)\localization\*.*" />
+		</ItemGroup>
+		<ILRepack
+            Parallel="true"
+            DebugInfo="False"
+            Internalize="true"
+            InternalizeExclude="@(DoNotInternalizeAssemblies)"
+            InputAssemblies="@(InputAssemblies)"
+            TargetKind="Dll"
+            XmlDocumentation="true"
+            OutputFile="$(OutputPath)\output\$(AssemblyName).dll"
+        />
+		<Copy SourceFiles="$(OutputPath)\extension.yaml" DestinationFolder="$(OutputPath)\output" />
+		<Copy SourceFiles="@(_CopyItems)" DestinationFolder="$(OutputPath)\output\localization" />
+
+
+	</Target>
+	<!-- /ILRepack -->
+</Project>

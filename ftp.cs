@@ -77,7 +77,7 @@ namespace ftp
                 ftpPath = args.Game.InstallDirectory.Replace(args.Game.GetInstallDrive(), settings.Settings.ServerBasepath);
                 directory = true;
                 localFilePath = settings.Settings.TempPath;
-                NetworkCredential credentials = new NetworkCredential(settings.Settings.FtpUsername, settings.Settings.FtpPassword);
+                NetworkCredential credentials = new NetworkCredential(settings.Settings.FtpUsername,settings.Settings.FtpPassword);
 
                 // Temporary directory
                

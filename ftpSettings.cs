@@ -4,6 +4,7 @@ using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -103,7 +104,7 @@ namespace ftp
                 if (savedSettings != null)
                 {
                     Settings = savedSettings;
-                    settings.FtpPassword=ftp.Encryption.UnprotectData(savedSettings.FtpPassword);
+                    Settings.FtpPassword=ftp.Encryption.UnprotectData(savedSettings.FtpPassword);
                 }
                 else
                 {
@@ -128,8 +129,9 @@ namespace ftp
             {
                 // Code executed when user decides to confirm changes made since BeginEdit was called.
                 // This method should save settings made to Option1 and Option2.
-                settings.FtpPassword = ftp.Encryption.ProtectData(Settings.FtpPassword);
-                plugin.SavePluginSettings(Settings);
+                var  crypted =Serialization.GetClone(Settings);
+                crypted.FtpPassword = ftp.Encryption.ProtectData(Settings.FtpPassword);
+                plugin.SavePluginSettings(crypted);
             }
 
             public bool VerifySettings(out List<string> errors)
