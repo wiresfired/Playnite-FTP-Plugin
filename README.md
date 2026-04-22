@@ -1,6 +1,6 @@
 ## FTP Plugin Readme
-***This Will Download The Entire Contents of the selected game folder***
-***It Only keeps the currently downloaded rom file on disk, it removes previous cache*****
+***This Will Download The Entire Contents of the selected game folder if the rom is .cue***
+
 ### Overview
 
 This is an extension for Playnite that allows users to Download Remote ROM files from an FTP server that is also a SAMBA share server. Roms on the Samba share must be scanned into Playnite (ie: mapped network drive). The ServerBasePath should be the actual location of the files on the FTP server).
