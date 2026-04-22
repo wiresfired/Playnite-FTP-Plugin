@@ -33,12 +33,26 @@ namespace ftp
                     var Filter = new FilterPresetSettings();
                     Filter.Platform = new IdItemFilterItemProperties(platform.Id);
                     bool hasRoms = false;
+                    bool isonnetwork = false;
                     IEnumerable<Game> filtered = _api.Database.GetFilteredGames(Filter);
                     if (filtered.Any())
                     {
                         hasRoms = true;
                     }
-                    platformsWithRoms[platform.Name] = hasRoms;
+                    if (hasRoms)
+                    {
+                        foreach (var game in filtered)
+                        {
+                            
+                            if (Ftp.CheckDrive.IsNetworkDrive(game.InstallDirectory))
+                            {
+                                isonnetwork= true;
+                                break;
+                            }
+
+                        }
+                    }
+                    platformsWithRoms[platform.Name] = isonnetwork;
                 }
             }
             catch (Exception ex)

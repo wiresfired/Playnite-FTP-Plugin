@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<!-- ILRepack -->
-	<Target Name="ILRepacker" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-		<ItemGroup>
-			<InputAssemblies Include="$(OutputPath)\ftp.dll" />
-			<InputAssemblies Include="$(OutputPath)\fluentftp.dll" />
-		</ItemGroup>
-		<ItemGroup>
-			<_CopyItems Include="$(OutputPath)\localization\*.*" />
-		</ItemGroup>
-		<ILRepack
+  <Target Name="ILRepacker" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+   
+    <ItemGroup>
+      <InputAssemblies Include="$(OutputPath)\ftp.dll" />
+      <InputAssemblies Include="$(OutputPath)\fluentftp.dll" />
+    </ItemGroup>
+   
+    
+    <ItemGroup>
+      <_CopyItems Include="$(OutputPath)\localization\*.*" />
+    </ItemGroup>
+    <ILRepack
             Parallel="true"
             DebugInfo="False"
             Internalize="true"
@@ -19,10 +22,17 @@
             XmlDocumentation="true"
             OutputFile="$(OutputPath)\output\$(AssemblyName).dll"
         />
-		<Copy SourceFiles="$(OutputPath)\extension.yaml" DestinationFolder="$(OutputPath)\output" />
-		<Copy SourceFiles="@(_CopyItems)" DestinationFolder="$(OutputPath)\output\localization" />
+    <Copy SourceFiles="$(OutputPath)\extension.yaml" DestinationFolder="$(OutputPath)\output" />
+    <Copy SourceFiles="@(_CopyItems)" DestinationFolder="$(OutputPath)\output\localization" />
+   
 
-
-	</Target>
+  </Target>
+  <Target Name="Pack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <ToolsPath>$(ProjectDir)\Utilities\Toolbox.exe</ToolsPath>
+    </PropertyGroup>
+    <MakeDir Directories="$(OutputPath)\release"/>
+    <Exec Command="$(ToolsPath) pack $(OutputPath)\output $(OutputPath)\release"/>
+  </Target>
 	<!-- /ILRepack -->
 </Project>

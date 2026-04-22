@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -68,14 +69,26 @@ namespace ftp
         }
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
+            bool directory = false;
             logger.Info("starting ftp extension");
             string ftpPath = null;
             string localFilePath = null;
-            bool directory = false;
+            List<string> isdirectory = new List<string> { ".cue"};
+            foreach(string dir in isdirectory)
+            {
+                if (Path.GetExtension(args.SelectedRomFile) == dir)
+                {
+                    directory = true;
+                    break;
+                }
+
+            }
+           
             if (ftp)
             {
                 ftpPath = args.Game.InstallDirectory.Replace(args.Game.GetInstallDrive(), settings.Settings.ServerBasepath);
-                directory = true;
+                // directory = true;
+                var GameDirectory =new DirectoryInfo(Path.GetDirectoryName(args.Game.InstallDirectory)).Name;
                 localFilePath = settings.Settings.TempPath;
                 NetworkCredential credentials = new NetworkCredential(settings.Settings.FtpUsername,settings.Settings.FtpPassword);
 
@@ -116,26 +129,27 @@ namespace ftp
                                 {
                                     case false:
                             
-                                        client.DownloadFile(localFilePath, ftpPath, FluentFTP.FtpLocalExists.Overwrite, FluentFTP.FtpVerify.None, progress);
+                                        client.DownloadFile(args.SelectedRomFile.Replace("{InstallDir}", localFilePath), args.SelectedRomFile.Replace("{InstallDir}",ftpPath), FluentFTP.FtpLocalExists.Resume, FluentFTP.FtpVerify.Retry, progress);
                                         break;
                                     case true:
-                                        client.DownloadDirectory(localFilePath, ftpPath, FluentFTP.FtpFolderSyncMode.Mirror,FluentFTP.FtpLocalExists.Overwrite,FluentFTP.FtpVerify.None,null,progress);
+                                        client.DownloadDirectory(localFilePath+"/"+GameDirectory, ftpPath, FluentFTP.FtpFolderSyncMode.Mirror,FluentFTP.FtpLocalExists.Resume,FluentFTP.FtpVerify.Retry,null,progress);
                                         break;
-                        
                                 }
                             }
                             catch (Exception e)
                             {
                                 logger.Info(e.Message);
+                               
                             }
                         }, new GlobalProgressOptions("") { IsIndeterminate = false });                            
                         logger.Info($"ROM downloaded and launched successfully for game {args.Game.Name}.");
                     }
                     catch (Exception ex)
                     {
-                        PlayniteApi.Dialogs.ShowErrorMessage("ERROR");
+                        PlayniteApi.Dialogs.ShowErrorMessage("ERROR Aborting");
                         logger.Error(ex, $"Error downloading ROM for game {args.Game.Name}");
                         logger.Info($"Failed to download ROM for game {args.Game.Name}: {ex.Message}");
+                        args.Game.IsLaunching = false;
                     }
                     finally
                     {
@@ -184,9 +198,12 @@ namespace ftp
         }
         public override IEnumerable<PlayController> GetPlayActions(GetPlayActionsArgs args)
         {
+            
             var action = args.Game.GameActions[0];
+           // action.OverrideDefaultArgs = false;
             var roms = args.Game.Roms;
             bool enabled = false;
+            bool folder = false;
             foreach (var platform in args.Game.Platforms)
             {
                 if (settings.Settings.CheckBoxes.ContainsKey(platform.Name) && settings.Settings.CheckBoxes[platform.Name] == true)
@@ -204,41 +221,71 @@ namespace ftp
                         enabled = false;
                         break;
                     }
+                    else if(Path.GetExtension(rom.Path).TrimStart('.')=="cue")
+                    {
+                        folder = true;
+                    }
                   
                 }
             }
                 //get default
-                if (CheckDrive.IsNetworkDrive(args.Game.InstallDirectory) & BytesToMB(args.Game.InstallSize) >= settings.Settings.Mingamesize && enabled)
+              
+            if (CheckDrive.IsNetworkDrive(args.Game.InstallDirectory) & BytesToMB(args.Game.InstallSize) >= settings.Settings.Mingamesize && enabled)  
+            {
+                ftp = true;
+
+                string builtinargs = null;
+
+                var emuid = action.EmulatorId;
+                var profileid = action.EmulatorProfileId;
+                var emulatorName = _api.Database.Emulators.Get(emuid).Name;
+                EmulatorProfile profileName = _api.Database.Emulators.Get(emuid).GetProfile(profileid);
+                var builtin = _api.Database.Emulators.Get(emuid).BuiltinProfiles.ToList();
+                var profile = builtin.Find(p => p.Id == profileid);
+                var emulator = _api.Database.Emulators.Get(emuid);
+                var definitions = _api.Emulation.GetEmulator(emulator.BuiltInConfigId).Profiles.ToList();
+               
+                var definition = definitions.Find(p => p.Name == profileName.Name);
+                if (definition != null)
                 {
-                    ftp = true;
-
-
-
-                    var emuid = action.EmulatorId;
-                    var profileid = action.EmulatorProfileId;
-                    var emulatorName = _api.Database.Emulators.Get(emuid).Name;
-                    var profileName = _api.Database.Emulators.Get(emuid).GetProfile(profileid);
-                    var builtin = _api.Database.Emulators.Get(emuid).BuiltinProfiles.ToList();
-                    var profile = builtin.Find(p => p.Id == profileid);
-                    var emulator = _api.Database.Emulators.Get(emuid);
-                    var definitions = _api.Emulation.GetEmulator(emulatorName).Profiles.ToList();
-                    var definition = definitions.Find(p => p.Name == profileName.Name);
-                    var builtinargs = definition.StartupArguments;
-
-
-                    string act = settings.Settings.TempPath + "/{ImageName}";
-                    var newargs = builtinargs.Replace("\"{ImagePath}\"", $"\"{act}\"");
-
-                    string arguments = newargs;
-
-                    action.Arguments = arguments;
-                    action.OverrideDefaultArgs = true;
+                    builtinargs = definition.StartupArguments;
                 }
                 else
                 {
-                    action.OverrideDefaultArgs = false;
+                    var custom = _api.Database.Emulators.Get(emuid).CustomProfiles.ToList();
+                    var prof= custom.Find(p => p.Name==profileName.Name);
+                    builtinargs = prof.Arguments;
                 }
-                yield break;
+
+                ///differentiate between cue and iso
+                string act;
+                var InstallDirectory = new DirectoryInfo(args.Game.InstallDirectory).Name;
+                if (folder)
+                {
+                    var GameDirectory = new DirectoryInfo(Path.GetDirectoryName(args.Game.InstallDirectory)).Name;
+
+                    act = settings.Settings.TempPath + "/" + GameDirectory + "/{ImageName}";
+                }
+                else
+                {
+                    
+
+                    act = settings.Settings.TempPath + "/{ImageName}";
+                }
+                var newargs = builtinargs.Replace("\"{ImagePath}\"", $"\"{act}\"");
+                ///change this to install directory
+                string arguments = newargs;
+
+                action.Arguments = arguments;
+                action.OverrideDefaultArgs = true;
+            }
+            else
+            {
+
+                ftp = false;
+                action.OverrideDefaultArgs = false;
+            }
+            yield break;
             
         }
         public static double BytesToMB(ulong? bytes)
