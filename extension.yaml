@@ -1,7 +1,7 @@
 ﻿Id: FTP_PLUGIN
 Name: FTP Plugin
 Author: WiresFired
-Version: 1.0
+Version: 1.0.0.1
 Module: ftp.dll
 Type: GenericPlugin
 Icon: icon.png

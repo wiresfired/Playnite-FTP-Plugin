@@ -72,6 +72,9 @@
     <None Include="ILRepack.Config.props" />
     <None Include="ILRepack.targets" />
     <None Include="packages.config" />
+    <None Include="Utilities\NLog.config" />
+    <None Include="Utilities\Toolbox.exe.config" />
+    <None Include="Utilities\Toolbox.log" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\*.xaml">
@@ -92,6 +95,15 @@
     <Resource Include="icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Utilities\CommandLine.dll" />
+    <Content Include="Utilities\NLog.dll" />
+    <Content Include="Utilities\Playnite.dll" />
+    <Content Include="Utilities\Playnite.SDK.dll" />
+    <Content Include="Utilities\Toolbox.exe" />
+    <Content Include="Utilities\Toolbox.pdb" />
+    <Content Include="Utilities\YamlDotNet.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
